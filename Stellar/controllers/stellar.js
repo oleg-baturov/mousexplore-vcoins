@@ -1132,6 +1132,50 @@ exports.getSearch = function(req, res) {
   }
 };
 
+// exports.postTransaction = async function(req, res) {
+//   var tx = req.body.tx;
+//   if (!tx) res.json({ status: 400, msg: "Empty transaction !" });
+
+//   console.log("tx: ", tx);
+
+//   console.log(
+//     "URI: ",
+//     URI(urlAPI)
+//       .segment("transactions")
+//       .toString()
+//   );
+//   axios
+//     .post(
+//       URI(urlAPI)
+//         .segment("transactions")
+//         .toString(),
+//       `tx=${tx}`,
+//       { timeout: config.SUBMIT_TRANSACTION_TIMEOUT }
+//     )
+//     .then(function(response) {
+//       console.log("postTransaction response: ", response);
+//       res.json({ status: 200, msg: "success", data: response.data });
+//     })
+//     .catch(function(response) {
+//       console.log(response);
+//       if (!response.data) {
+//         console.log("Error");
+//         res.json({
+//           status: 400,
+//           msg: "Transaction submission failed.",
+//           data: response
+//         });
+//       } else {
+//         console.log("transaction error: ", response.data);
+//         res.json({
+//           status: 400,
+//           msg: "Transaction submission failed.",
+//           data: response.data
+//         });
+//       }
+//     });
+// };
+
 exports.postTransaction = async function(req, res) {
   var tx = req.body.tx;
   if (!tx) res.json({ status: 400, msg: "Empty transaction !" });
@@ -1144,37 +1188,25 @@ exports.postTransaction = async function(req, res) {
       .segment("transactions")
       .toString()
   );
-  axios
-    .post(
-      URI(urlAPI)
-        .segment("transactions")
-        .toString(),
-      `tx=${tx}`,
-      { timeout: config.SUBMIT_TRANSACTION_TIMEOUT }
-    )
-    .then(function(response) {
-      console.log("postTransaction response: ", response);
-      res.json({ status: 200, msg: "success", data: response.data });
-    })
-    .catch(function(response) {
-      console.log(response);
-      if (!response.data) {
-        console.log("Error");
-        res.json({
-          status: 400,
-          msg: "Transaction submission failed.",
-          data: response
-        });
-      } else {
-        console.log("transaction error: ", response.data);
-        res.json({
-          status: 400,
-          msg: "Transaction submission failed.",
-          data: response.data
-        });
-      }
-    });
+
+  var url = urlAPI + "/transactions";//?" + `tx={tx}`;
+  console.log(url);
+  request({url: url, method:"post", json:{tx: tx}}, async function(error, response, body) {
+    if (!error) {
+      body = JSON.parse(body);
+      res.json({ status: 200, msg: "success", data: body });
+    }
+    else {
+      console.log(error);
+      res.json({
+        status: 400,
+        msg: "Transaction submission failed.",
+        data: error
+      });
+    }
+  });
 };
+
 
 //http://localhost:2000/test
 exports.TestTransaction = function(req, res) {
